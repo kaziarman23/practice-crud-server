@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -33,9 +33,37 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/members/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await memberCollection.findOne(query);
+      res.send(result);
+    });
+
     app.post("/members", async (req, res) => {
       const member = req.body;
       const result = await memberCollection.insertOne(member);
+      res.send(result);
+    });
+
+    app.put("/members/:id", async (req, res) => {
+      const id = req.params.id;
+      const update = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updatedMember = {
+        $set: {
+          name: update.name,
+          email: update.email,
+        },
+      };
+      const result = await memberCollection.updateOne(filter, updatedMember);
+      res.send(result);
+    });
+
+    app.delete("/members/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await memberCollection.deleteOne(query);
       res.send(result);
     });
 
